@@ -720,7 +720,14 @@ export function convertAction(
     }
 
     case 'multiple_of': {
-      jsonSchema.multipleOf = valibotAction.requirement;
+      if (jsonSchema.multipleOf === undefined) {
+        jsonSchema.multipleOf = valibotAction.requirement;
+      } else if (jsonSchema.multipleOf !== valibotAction.requirement) {
+        jsonSchema.allOf = [
+          ...(jsonSchema.allOf ?? []),
+          { multipleOf: valibotAction.requirement },
+        ];
+      }
       break;
     }
 
