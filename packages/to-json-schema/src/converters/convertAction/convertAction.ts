@@ -722,7 +722,21 @@ export function convertAction(
     case 'multiple_of': {
       if (jsonSchema.multipleOf === undefined) {
         jsonSchema.multipleOf = valibotAction.requirement;
-      } else if (jsonSchema.multipleOf !== valibotAction.requirement) {
+      } else if (
+        jsonSchema.multipleOf !== valibotAction.requirement &&
+        !jsonSchema.allOf?.some((item) => {
+          if (typeof item !== 'object') {
+            return false;
+          }
+          // Reference siblings can be ignored, so only match standalone constraints.
+          const keys = Object.keys(item);
+          return (
+            keys.length === 1 &&
+            keys[0] === 'multipleOf' &&
+            item.multipleOf === valibotAction.requirement
+          );
+        })
+      ) {
         jsonSchema.allOf = [
           ...(jsonSchema.allOf ?? []),
           { multipleOf: valibotAction.requirement },

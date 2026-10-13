@@ -1227,6 +1227,33 @@ describe('convertAction', () => {
     ).toStrictEqual({ type: 'number', multipleOf: 5 });
   });
 
+  test('should keep repeated all of multiple of restrictions compact', () => {
+    const allOf = [{ minimum: 0 }, false, { multipleOf: 3 }];
+    expect(
+      convertAction(
+        { type: 'number', multipleOf: 2, allOf },
+        v.multipleOf<number, 3>(3),
+        undefined
+      )
+    ).toStrictEqual({ type: 'number', multipleOf: 2, allOf });
+    expect(allOf).toStrictEqual([{ minimum: 0 }, false, { multipleOf: 3 }]);
+  });
+
+  test('should not deduplicate multiple of beside a reference', () => {
+    const reference = { $ref: '#/$defs/number', multipleOf: 3 };
+    expect(
+      convertAction(
+        { type: 'number', multipleOf: 2, allOf: [reference] },
+        v.multipleOf<number, 3>(3),
+        undefined
+      )
+    ).toStrictEqual({
+      type: 'number',
+      multipleOf: 2,
+      allOf: [reference, { multipleOf: 3 }],
+    });
+  });
+
   test('should convert non empty action for strings', () => {
     expect(
       convertAction({ type: 'string' }, v.nonEmpty(), undefined)

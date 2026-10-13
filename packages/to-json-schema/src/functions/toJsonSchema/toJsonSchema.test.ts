@@ -891,6 +891,7 @@ describe('toJsonSchema', () => {
         toJsonSchema(
           v.pipe(
             v.pipe(v.number(), v.multipleOf(2), v.multipleOf(3)),
+            v.multipleOf(3),
             v.multipleOf(5),
             v.maxValue(60)
           )
